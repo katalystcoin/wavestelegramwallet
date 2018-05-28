@@ -13,18 +13,9 @@ def receive_message(msg):
     """Receive a raw message from Telegram"""
     print(msg)
     try:
-        # Retrieve user from db
-        # if not registered -> go to unidentified user flow
-        # Else
-        # populate and return user context from retrieved user
-
         message = str(msg["message"]["text"])
         chat_id = msg["message"]["chat"]["id"]
         user_id = msg["message"]["from"]["id"]
-
-
-        user = User.retrieve(user_id)
-        context = user.get_chat_context(chat_id)
         return message, chat_id, user_id
     except Exception as e:
         print(e)
@@ -44,8 +35,6 @@ def handle_message(message, chat_id, from_user_id):
             If you're a new user use this command to register
          /address
             Shows you your wallet address
-         /balance
-            Shows you your wallet balance
          /sendWaves [recipient address] [number of waves]
             Sends [number of waves] to [recipient address].
         """)
@@ -94,7 +83,7 @@ def send_message(chat_id, message):
 def run(message):
     """Receive a message, handle it, and send a response"""
     try:
-        message, chat_id, from_user_id, context = receive_message(message)
+        message, chat_id, from_user_id = receive_message(message)
         response = handle_message(message, chat_id, from_user_id)
         send_message(chat_id, response)
     except Exception as e:

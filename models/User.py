@@ -10,12 +10,6 @@ class User:
         self.user_id = user_id
         self.seed = seed
         self.create_wallet(seed)
-        self.user_context = 
-
-    def create_user():
-        """
-        Creates a new user object and persists it to the database
-        """
 
     @classmethod
     def retrieve(cls, user_id):
@@ -37,29 +31,11 @@ class User:
         If seed is provided, the wallet is initialized from the seed,
         otherwise a wallet is generated from a new seed.
         """
-        self.wallet = pywaves.Address()
+        if (len(seed)):
+            self.wallet = pywaves.Address(seed=seed)
+        else:
+            self.wallet = pywaves.Address()
 
-    def get_chat_context(chat_id):
-        """
-        Returns the User's context for this chat_id
-        """
-        """
-        Context object shape:
-
-        Context: {
-            ChatStates: {
-                [chatId]: {
-
-                }
-                [chatId]: {
-                    ...
-                }
-            }
-            UserStates: {
-                Wallets: []
-            }
-        }
-        """
 
     def save(self):
         """
