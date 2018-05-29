@@ -6,8 +6,15 @@ name = "pypi"
 [packages]
 zappa = "*"
 "boto3" = "*"
+flask = "*"
+pywaves = "*"
+telepot = "*"
+requests = "*"
 
 [dev-packages]
+"flake8" = "*"
+autoflake = "*"
+"autopep8" = "*"
 
 [requires]
 python_version = "3.6"

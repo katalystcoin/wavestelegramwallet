@@ -1,10 +1,11 @@
 import pywaves
 import boto3
-import config_dev as config
+from config import config
+
 
 class User:
-    db = boto3.resource('dynamodb').Table(config.db_table_name)
-    pywaves.setNode(config.node_url, config.net_id)
+    db = boto3.resource("dynamodb").Table(config.DB_TABLE_NAME)
+    pywaves.setNode(config.NODE_URL, config.NET_ID)
 
     def __init__(self, user_id, seed=""):
         self.user_id = user_id
@@ -18,12 +19,8 @@ class User:
         If the user_id does not exist in the database then this method
         will throw a KeyError
         """
-        user = cls.db.get_item(
-            Key={
-                'user_id': str(user_id)
-            }
-        )['Item']
-        return User(user_id=user['user_id'], seed=user['seed'])
+        user = cls.db.get_item(Key={"user_id": str(user_id)})["Item"]
+        return User(user_id=user["user_id"], seed=user["seed"])
 
     def create_wallet(self, seed=""):
         """
@@ -31,22 +28,17 @@ class User:
         If seed is provided, the wallet is initialized from the seed,
         otherwise a wallet is generated from a new seed.
         """
-        if (len(seed)):
-            self.wallet = pywaves.Address(seed=seed)
-        else:
-            self.wallet = pywaves.Address()
-
+        self.wallet = pywaves.Address(seed=seed)
 
     def save(self):
         """
-        Saves the User object to database 
+        Saves the User object to database
         """
         try:
-            self.db.put_item(Item={
-                'user_id': str(self.user_id),
-                'seed': self.wallet.seed
-            })
+            self.db.put_item(
+                Item={"user_id": str(self.user_id), "seed": self.wallet.seed}
+            )
         except:
-            # Handle more errors 
+            # Handle more errors
             print("Error saving user")
             raise
