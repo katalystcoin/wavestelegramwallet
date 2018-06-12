@@ -10,11 +10,13 @@ flask = "*"
 pywaves = "*"
 telepot = "*"
 requests = "*"
+dynamodb-encryption-sdk = "*"
 
 [dev-packages]
 "flake8" = "*"
 autoflake = "*"
 "autopep8" = "*"
+pip = "*"
 
 [requires]
 python_version = "3.6"

@@ -1,16 +1,30 @@
 import pywaves
 import boto3
+import uuid
 from config import config
-
+from dynamodb_encryption_sdk.encrypted.table import EncryptedTable
+from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptographicMaterialsProvider
 
 class User:
     db = boto3.resource("dynamodb").Table(config.DB_TABLE_NAME)
+    secrets_table_name = boto3.resource("dynamodb").Table(config.SECRETS_TABLE_NAME)
+    aws_kms_cmp = AwsKmsCryptographicMaterialsProvider(config.DB_ENCRYPTION_KEY_ALIAS)
+
+
+    secrets_table = EncryptedTable(
+        table=secrets_table_name,
+        materials_provider=aws_kms_cmp
+    )
+
     pywaves.setNode(config.NODE_URL, config.NET_ID)
 
     def __init__(self, user_id, seed=""):
         self.user_id = user_id
-        self.seed = seed
-        self.create_wallet(seed)
+        if seed:
+            self.seed = seed
+            self.create_wallet(seed)
+        else:
+            self.initialise_wallet()
 
     @classmethod
     def retrieve(cls, user_id):
@@ -20,7 +34,21 @@ class User:
         will throw a KeyError
         """
         user = cls.db.get_item(Key={"user_id": str(user_id)})["Item"]
-        return User(user_id=user["user_id"], seed=user["seed"])
+        seed = cls.retrieve_wallet(str(user["wallet_guid"]))
+        return User(user_id=user["user_id"], seed=seed)
+
+    def initialise_wallet(self):
+        self.wallet_guid = str(uuid.uuid4())
+
+        self.seed = pywaves.Address().seed 
+        self.create_wallet(self.seed)
+        self.secrets_table.put_item(
+            Item={ "guid": self.wallet_guid, 
+                   "seed": self.seed }
+        )
+        self.db.put_item(
+            Item={"user_id": str(self.user_id), "wallet_guid": self.wallet_guid }
+        )
 
     def create_wallet(self, seed=""):
         """
@@ -30,15 +58,11 @@ class User:
         """
         self.wallet = pywaves.Address(seed=seed)
 
-    def save(self):
+    @classmethod 
+    def retrieve_wallet(cls, wallet_guid):
         """
-        Saves the User object to database
+        Retrieves the wallet seed for the user from the encrypted secrets table
         """
-        try:
-            self.db.put_item(
-                Item={"user_id": str(self.user_id), "seed": self.wallet.seed}
-            )
-        except:
-            # Handle more errors
-            print("Error saving user")
-            raise
+        return cls.secrets_table.get_item(
+           Key={"guid": wallet_guid} 
+        )["Item"]["seed"]

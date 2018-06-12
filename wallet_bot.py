@@ -21,6 +21,7 @@ def receive_message(msg):
         return message, chat_id, user_id
     except Exception as e:
         print(e)
+        print("errored")
         return (None, None)
 
 
@@ -51,7 +52,6 @@ def handle_message(message, chat_id, from_user_id):
             send_message(chat_id, "You already have an existing wallet!")
         except KeyError:
             user = User(from_user_id)
-            user.save()
             response = "Wallet registered! Your wallet address is: {}".format(
                 user.wallet.address
             )
