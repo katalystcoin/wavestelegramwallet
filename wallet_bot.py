@@ -6,6 +6,8 @@ from models.User import User
 
 from telepot.exception import TelegramError
 
+import traceback
+
 bot = telepot.Bot(
     config.BOT_TOKEN
 )
@@ -20,10 +22,8 @@ def receive_message(msg):
         user_id = msg["message"]["from"]["id"]
         return message, chat_id, user_id
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
         print("errored")
-        return (None, None)
-
 
 def handle_message(message, chat_id, from_user_id):
     """Calculate a response to the message"""
@@ -81,6 +81,9 @@ def handle_message(message, chat_id, from_user_id):
 
         except:
             response = "Something went wrong! Please try again later."
+
+    elif command == "/version":
+        response = "Version is 0.0.2"
 
     else:
         response = "Unknown command, try /help"
