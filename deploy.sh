@@ -2,4 +2,5 @@
 
 python -m deploy.py
 python -m initialize_db.py
-zappa update dev
+python -m update.py
+python -m set_webhook.py
