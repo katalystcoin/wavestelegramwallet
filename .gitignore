@@ -3,4 +3,5 @@ __pycache__/**
 .vscode/**
 
 zappa_settings.json
-config_*.py
+**/*/config*.py
+!config/config_example.py
