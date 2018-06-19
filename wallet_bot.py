@@ -59,7 +59,7 @@ def handle_message(message, chat_id, from_user_id):
     elif command == "/address":
         try:
             user = User.retrieve(from_user_id)
-            response = "Your wallet address is: {}".format(user.wallet.address)
+            response = "Your wallet address is: {}".format(user.wallet.address.decode('utf-8'))
         except KeyError:
             response = "You don't have a wallet registered, use /register to make one"
 

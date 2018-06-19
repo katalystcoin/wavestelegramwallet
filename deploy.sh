@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python -m deploy.py
-python -m initialize_db.py
-python -m update.py
-python -m set_webhook.py
+python deploy.py
+python initialize_db.py
+python update.py
+python set_webhook.py
