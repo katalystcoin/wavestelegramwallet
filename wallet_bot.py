@@ -14,7 +14,7 @@ WAVES_DECIMALS = 10e7
 bot = telepot.Bot(
     config.BOT_TOKEN
 )
-pywaves.setThrowOnError()
+pywaves.setThrowOnError(True)
 
 
 def receive_message(msg):
