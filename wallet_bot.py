@@ -43,6 +43,8 @@ def handle_message(message, chat_id, from_user_id):
             If you're a new user use this command to register
          /address
             Shows you your wallet address
+         /balance
+            Shows you your wallet's Waves balance
          /sendWaves [recipient address] [number of waves]
             Sends [number of waves] to [recipient address].
         """
@@ -92,7 +94,7 @@ def handle_message(message, chat_id, from_user_id):
             raise
 
     elif command == "/version":
-        response = "Version is 0.0.3"
+        response = "Version is 0.0.4"
 
     else:
         response = "Unknown command, try /help"
