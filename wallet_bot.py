@@ -1,12 +1,15 @@
 from textwrap import dedent
 import telepot
 from config import config
+import pywaves
 
 from models.User import User
 
 from telepot.exception import TelegramError
 
 import traceback
+
+WAVES_DECIMALS = 10e7
 
 bot = telepot.Bot(
     config.BOT_TOKEN
@@ -59,31 +62,37 @@ def handle_message(message, chat_id, from_user_id):
     elif command == "/address":
         try:
             user = User.retrieve(from_user_id)
-            response = "Your wallet address is: {}".format(user.wallet.address.decode('utf-8'))
+            response = "Your wallet address is: {}".format(user.wallet.address)
         except KeyError:
             response = "You don't have a wallet registered, use /register to make one"
 
     elif command == "/balance":
         try:
             user = User.retrieve(from_user_id)
-            response = "Your wallet WAVES balance is: {}".format(
-                user.wallet.balance())
+            balance = str(float(user.wallet.balance()) / WAVES_DECIMALS) 
+            response = "Your wallet WAVES balance is: {}".format(balance)
         except KeyError as e:
             response = "You don't have a wallet registered, use /register to make one"
 
     elif command == "/sendWaves":
         try:
-            # user =  User.retrieve(from_user_id)
-            response = "This feature has not been implemented yet, sorry!"
-            # response = "Your wallet WAVES balance is: {}".format(user.wallet.balance())
+            user =  User.retrieve(from_user_id)
+            recipient = pywaves.Address(message_tokens[1]) # TODO: Abstract this out from this file
+            amount = int(float(message_tokens[2]) * WAVES_DECIMALS)
+            user.wallet.sendWaves(recipient, amount)
+            response = "Transaction sent! It may take a few minutes for the change in your balance to take effect. You can check your balance with /balance"
         except KeyError as e:
             response = "You don't have a wallet registered, use /register to make one"
-
+        except ValueError as e:
+            response = "Invalid recipient address, please check that it is correct"
+        except pywaves.PyWavesException as e:
+            response = e.args[0]
         except:
             response = "Something went wrong! Please try again later."
+            raise
 
     elif command == "/version":
-        response = "Version is 0.0.2"
+        response = "Version is 0.0.3"
 
     else:
         response = "Unknown command, try /help"

@@ -17,6 +17,7 @@ class User:
     )
 
     pywaves.setNode(config.NODE_URL, config.NET_ID)
+    pywaves.setThrowOnError()
 
     def __init__(self, user_id, seed=""):
         self.user_id = user_id
