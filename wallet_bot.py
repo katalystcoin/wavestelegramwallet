@@ -14,6 +14,7 @@ WAVES_DECIMALS = 10e7
 bot = telepot.Bot(
     config.BOT_TOKEN
 )
+pywaves.setThrowOnError(True)
 
 
 def receive_message(msg):
@@ -43,6 +44,8 @@ def handle_message(message, chat_id, from_user_id):
             If you're a new user use this command to register
          /address
             Shows you your wallet address
+         /balance
+            Shows you your wallet's Waves balance
          /sendWaves [recipient address] [number of waves]
             Sends [number of waves] to [recipient address].
         """
@@ -76,6 +79,8 @@ def handle_message(message, chat_id, from_user_id):
 
     elif command == "/sendWaves":
         try:
+            if len(message_tokens) < 3:
+                raise ValueError("Insufficient arguments")
             user =  User.retrieve(from_user_id)
             recipient = pywaves.Address(message_tokens[1]) # TODO: Abstract this out from this file
             amount = int(float(message_tokens[2]) * WAVES_DECIMALS)
@@ -83,16 +88,23 @@ def handle_message(message, chat_id, from_user_id):
             response = "Transaction sent! It may take a few minutes for the change in your balance to take effect. You can check your balance with /balance"
         except KeyError as e:
             response = "You don't have a wallet registered, use /register to make one"
-        except ValueError as e:
-            response = "Invalid recipient address, please check that it is correct"
         except pywaves.PyWavesException as e:
             response = e.args[0]
+        except ValueError as e:
+            if e.args[0] == "Invalid address":
+                response = "Invalid recipient address, please check that it is correct"
+            elif e.args[0] == "Insufficient arguments":
+                response = "/sendWaves requires a recipient address and an amount to send, please check your command"
+            elif "could not convert string to float" in e.args[0]:
+                response = "/sendWaves requires a numerical amount to send, note that the brackets are to be omitted"
+            else:
+                response = "Something went wrong! Please check your command"
         except:
             response = "Something went wrong! Please try again later."
             raise
 
     elif command == "/version":
-        response = "Version is 0.0.3"
+        response = "Version is 0.0.4"
 
     else:
         response = "Unknown command, try /help"
