@@ -88,6 +88,8 @@ def handle_message(message, chat_id, from_user_id):
             response = "Transaction sent! It may take a few minutes for the change in your balance to take effect. You can check your balance with /balance"
         except KeyError as e:
             response = "You don't have a wallet registered, use /register to make one"
+        except pywaves.PyWavesException as e:
+            response = e.args[0]
         except ValueError as e:
             if e.args[0] == "Invalid address":
                 response = "Invalid recipient address, please check that it is correct"
@@ -95,8 +97,8 @@ def handle_message(message, chat_id, from_user_id):
                 response = "/sendWaves requires a recipient address and an amount to send, please check your command"
             elif "could not convert string to float" in e.args[0]:
                 response = "/sendWaves requires a numerical amount to send, note that the brackets are to be omitted"
-        except pywaves.PyWavesException as e:
-            response = e.args[0]
+            else:
+                response = "Something went wrong! Please check your command"
         except:
             response = "Something went wrong! Please try again later."
             raise
