@@ -18,7 +18,7 @@ cryptography==2.2.2
 decorator==4.3.0
 docutils==0.14
 durationpy==0.5
-dynamodb-encryption-sdk==1.0.4
+dynamodb-encryption-sdk==1.3.0
 flake8==3.5.0
 Flask==1.0.2
 future==0.16.0
